@@ -1,1 +1,11 @@
-http://xkcd.com/724/
+
+Idea and artwork comes from http://xkcd.com/724/
+
+To compile type:
+
+   make
+
+You will need:
+
+HaXe from http://haxe.org/
+SamHaXe from http://www.mindless-labs.com/trac/samhaxe/
