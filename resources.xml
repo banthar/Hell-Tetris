@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shx:resources version="10" compress="false" package="resources"
+   xmlns:shx="http://mindless-labs.com/samhaxe"
+   xmlns:bin="http://mindless-labs.com/samhaxe/modules/Binary"
+   xmlns:img="http://mindless-labs.com/samhaxe/modules/Image"
+   xmlns:snd="http://mindless-labs.com/samhaxe/modules/Sound"
+   xmlns:swf="http://mindless-labs.com/samhaxe/modules/Swf"
+   xmlns:font="http://mindless-labs.com/samhaxe/modules/Font"
+   xmlns:comp0="http://mindless-labs.com/samhaxe/modules/Compose#1.0"
+   xmlns:comp1="http://mindless-labs.com/samhaxe/modules/Compose#1.1">
+
+   <shx:frame>
+		<swf:library import="data/images.swf" symbols="true"/>
+		<img:image class="background" import="data/background.png"/>
+		<img:image class="press_to_play" import="data/press_to_play.png"/>
+   </shx:frame>
+
+</shx:resources>
+
