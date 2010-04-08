@@ -17,4 +17,4 @@ run: $(OUTPUT).swf
 	flashplayer $(OUTPUT).swf
 
 clean:
-	rm -rf assets.swf data/images.swf
+	rm -rf assets.swf

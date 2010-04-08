@@ -10,7 +10,6 @@
    xmlns:comp1="http://mindless-labs.com/samhaxe/modules/Compose#1.1">
 
    <shx:frame>
-		<swf:library import="data/images.swf" symbols="true"/>
 		<img:image class="background" import="data/background.png"/>
 		<img:image class="press_to_play" import="data/press_to_play.png"/>
    </shx:frame>
