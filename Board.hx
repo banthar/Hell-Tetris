@@ -40,7 +40,7 @@ class Board extends Sprite
 
 		world = new phx.World(new phx.col.AABB(-10,-10,w+10,h+10),new phx.col.SortedList());
 		//world.sleepEpsilon=1/20;
-		world.gravity = new phx.Vector(0,2.0);
+		world.gravity = new phx.Vector(0,100.0);
 
 		world.addStaticShape(phx.Shape.makeBox(w,10,0,-110));
 		world.addStaticShape(phx.Shape.makeBox(w,10,0,h));
@@ -61,7 +61,7 @@ class Board extends Sprite
 			
 			var y=(1.0-Math.sqrt(1-t*t))*w/2.0;
 			
-			world.addStaticShape(phx.Shape.makeBox(w/c,y,x/c*w-w/c/2.0,h-y));
+			world.addStaticShape(phx.Shape.makeBox(w/c,y,x/c*w-w/c/2.0,h-y,new phx.Material(0.0,1.0,0.0)));
 			
 		}
 
@@ -85,7 +85,7 @@ class Board extends Sprite
 			case 37:
 				current_block.setSpeed(-1.0,null);
 			case 38:
-				current_block.body.a+=Math.PI/2.0;
+				current_block.rotate(Math.PI/2.0);
 			case 39:
 				current_block.setSpeed(1.0,null);
 			case 40:
@@ -118,7 +118,7 @@ class Board extends Sprite
 	{
 		
 		if(next_block==null)
-			next_block=new Block(w/2.0,-10.0);
+			next_block=Block.randomBlock(w/2.0,-10.0);
 		else
 			removeChild(next_block);
 		
@@ -132,7 +132,7 @@ class Board extends Sprite
 		blocks.push(current_block);
 		addChild(current_block);
 		
-		next_block=new Block(w/2.0,-10.0);
+		next_block=Block.randomBlock(w/2.0,-10.0);
 
 		var bounds=next_block.getBounds(next_block);
 
@@ -146,7 +146,7 @@ class Board extends Sprite
 	private function tick(?_)
 	{
 		
-		world.step(1.0/30.0*4.0,10);
+		world.step(1.0/30.0,10);
 		
 		if(time_to_next_block>0)
 		{
@@ -159,9 +159,8 @@ class Board extends Sprite
 			
 		}
 		
-		graphics.clear();
-		
 		/*
+		graphics.clear();
 		var fd = new phx.FlashDraw(graphics);
         fd.drawCircleRotation = true;
         fd.drawWorld(world);
@@ -170,6 +169,11 @@ class Board extends Sprite
 		for(block in blocks)
 		{
 			block.tick();
+		}
+		
+		if(current_block!=null)
+		{
+			current_block.body.v.set(current_block.speed.x,current_block.speed.y);
 		}
 		
 		if(current_block!=null && !current_block.body.arbiters.isEmpty())

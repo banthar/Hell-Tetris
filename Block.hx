@@ -6,15 +6,64 @@ class Block extends Shape
 	
 	public var body:phx.Body;
 	
-	private var speed:phx.Vector;
+	public var speed:phx.Vector;
+		
+	var color:UInt;
 	
-	public function new(x:Float,y:Float)
+	var squares:Array<phx.Vector>;
+	
+	public function new(x:Float,y:Float,squares:Array<phx.Vector>,color:UInt)
 	{
 		
 		super();
 		
 		speed=new phx.Vector(0.0,0.0);
+		setSpeed(0.0,0.0);
 		
+		body=new phx.Body(x,y);
+
+		var center=new phx.Vector(0.0,0.0);
+
+		for(t in squares)
+		{
+			//center.x+=t.x;
+			//center.y+=t.y;
+		}
+	
+		center.x/=4.0;
+		center.y/=4.0;
+
+
+		for(t in squares)
+		{
+			graphics.beginFill(0x000000);
+			graphics.drawRect((t.x-center.x)*26-13-2,(t.y-center.y)*26-13-2,26+4,26+4);
+			graphics.endFill();
+			
+			body.addShape(phx.Shape.makeBox(26+4,26+4,(t.x-center.x)*26-13-2,(t.y-center.y)*26-13-2,new phx.Material(0.0,1.0,10.0)));
+			
+		}
+	
+
+		graphics.beginFill(color);
+	
+		for(t in squares)
+		{
+			
+			graphics.drawRect((t.x-center.x)*26-13,(t.y-center.y)*26-13,26,26);
+			
+			body.addShape(phx.Shape.makeBox(26,26,(t.x-center.x)*26-13,(t.y-center.y)*26-13));
+
+		}
+
+		graphics.endFill();
+		
+		updatePosition();
+		
+	}
+	
+	public static function randomBlock(x:Float,y:Float)
+	{
 		var types=[
 				[new phx.Vector(-0.5,-0.5),new phx.Vector(-0.5,0.5),new phx.Vector(0.5,-0.5),new phx.Vector(0.5,0.5)],
 				[new phx.Vector(0.0,-0.5),new phx.Vector(0.0,0.5),new phx.Vector(0.0,-1.5),new phx.Vector(0.0,1.5)],
@@ -37,45 +86,7 @@ class Block extends Shape
 		
 		var type=Std.int((types.length)*Math.random());
 		
-		body=new phx.Body(x,y);
-
-		var center=new phx.Vector(0.0,0.0);
-
-		for(t in types[type])
-		{
-			center.x+=t.x;
-			center.y+=t.y;
-		}
-	
-		center.x/=4.0;
-		center.y/=4.0;
-
-
-		for(t in types[type])
-		{
-			graphics.beginFill(0x000000);
-			graphics.drawRect((t.x-center.x)*26-13-2,(t.y-center.y)*26-13-2,26+4,26+4);
-			graphics.endFill();
-			
-			body.addShape(phx.Shape.makeBox(26+4,26+4,(t.x-center.x)*26-13-2,(t.y-center.y)*26-13-2));
-			
-		}
-	
-
-		graphics.beginFill(colors[type]);
-	
-		for(t in types[type])
-		{
-			
-			graphics.drawRect((t.x-center.x)*26-13,(t.y-center.y)*26-13,26,26);
-			
-			body.addShape(phx.Shape.makeBox(26,26,(t.x-center.x)*26-13,(t.y-center.y)*26-13));
-
-		}
-
-		graphics.endFill();
-		
-		updatePosition();
+		return new Block(x,y,types[type],colors[type]);
 		
 	}
 	
@@ -99,23 +110,39 @@ class Block extends Shape
         transform.matrix=matrix;
     }
 	
+	public function rotate(radians:Float)
+	{
+		body.a+=radians;
+				
+		updatePosition();
+	
+		var bounds=getBounds(parent);
+	
+		if(bounds.x < 0)
+			body.x-=getBounds(parent).x;
+
+		if(bounds.x+bounds.width > 260)
+			body.x-=bounds.x+bounds.width-260;
+	
+	}
+	
 	public function setSpeed(?x:Float,?y:Float)
 	{
 		
-		var s=30.0;
+		var s=100.0;
 		
 		if(x!=null)
 		{
 			//body.v.x-=speed.x;
 			speed.x=x*s;
-			body.v.x=speed.x;
+			//body.v.x=speed.x;
 		}
 		
 		if(y!=null)
 		{
 			//body.v.y-=speed.y;
-			speed.y=y*s*3.0;
-			body.v.y=speed.y;
+			speed.y=(y*2.0+0.5)*s;
+			//body.v.y=speed.y;
 		}
 	}
 	
