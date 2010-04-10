@@ -24,6 +24,9 @@ class Board extends Sprite
 	private var borders:Array<phx.Polygon>;
 	
 	public var blocks_dropped:Int;
+	public var lines_cleared:Int;
+	
+	public var level:Int;
 	
 	public function new(game:Game)
 	{
@@ -32,17 +35,21 @@ class Board extends Sprite
 
 		this.game=game;
 		blocks_dropped=0;
-
+		lines_cleared=0;
+		level=1;
+		
+		time_to_next_block=0.0;
+		
 		w=260;
 		h=410;
 
 		blocks=[];
 
-		world = new phx.World(new phx.col.AABB(-10,-10,w+10,h+10),new phx.col.SortedList());
+		world = new phx.World(new phx.col.AABB(-100,-100,w+10,h+10),new phx.col.SortedList());
 		//world.sleepEpsilon=1/20;
 		world.gravity = new phx.Vector(0,100.0);
 
-		world.addStaticShape(phx.Shape.makeBox(w,10,0,-110));
+		//world.addStaticShape(phx.Shape.makeBox(w,10,0,-200));
 		world.addStaticShape(phx.Shape.makeBox(w,10,0,h));
 		
 		borders=[phx.Shape.makeBox(10,h+100,-10,-100),phx.Shape.makeBox(10,h+100,w,-100)];
@@ -59,6 +66,8 @@ class Board extends Sprite
 			
 			var t=(x-1.0/c+0.6)/c*2.0-1.0;
 			
+			//t=1.0;
+			
 			var y=(1.0-Math.sqrt(1-t*t))*w/2.0;
 			
 			world.addStaticShape(phx.Shape.makeBox(w/c,y,x/c*w-w/c/2.0,h-y,new phx.Material(0.0,1.0,0.0)));
@@ -70,7 +79,7 @@ class Board extends Sprite
 		Main.stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
 		Main.stage.addEventListener(KeyboardEvent.KEY_UP,onKeyUp);
 
-		addBlock();
+		newBlock();
 
 	}
 	
@@ -91,7 +100,7 @@ class Board extends Sprite
 			case 40:
 				current_block.setSpeed(null,1.0);
 			default:
-				trace(e.keyCode);
+				//trace(e.keyCode);
 		}
 	}
 	
@@ -110,15 +119,32 @@ class Board extends Sprite
 			case 40:
 				current_block.setSpeed(null,0.0);
 			default:
-				trace(e.keyCode);
+				//trace(e.keyCode);
 		}
 	}	
 	
-	private function addBlock()
+	private function addBlock(block:Block)
+	{
+		
+		world.addBody(block.body);
+		
+		blocks.push(block);
+		addChild(block);
+		
+	}
+	
+	private function removeBlock(block:Block)
+	{
+		world.removeBody(block.body);
+		blocks.remove(block);
+		removeChild(block);
+	}
+	
+	private function newBlock()
 	{
 		
 		if(next_block==null)
-			next_block=Block.randomBlock(w/2.0,-10.0);
+			next_block=Block.randomBlock(w/2.0,2.5*-26.0);
 		else
 			removeChild(next_block);
 		
@@ -127,12 +153,9 @@ class Board extends Sprite
 		
 		current_block=next_block;
 		
-		world.addBody(current_block.body);
+		addBlock(current_block);
 		
-		blocks.push(current_block);
-		addChild(current_block);
-		
-		next_block=Block.randomBlock(w/2.0,-10.0);
+		next_block=Block.randomBlock(w/2.0,2.5*-26.0);
 
 		var bounds=next_block.getBounds(next_block);
 
@@ -154,7 +177,17 @@ class Board extends Sprite
 			
 			if(time_to_next_block<0)
 			{
-				addBlock();
+				if(current_block==null)
+				{
+					newBlock();
+				}
+				else
+				{
+					blocks_dropped++;
+					current_block=null;
+					time_to_next_block=1.0;
+				}
+				
 			}
 			
 		}
@@ -165,10 +198,17 @@ class Board extends Sprite
         fd.drawCircleRotation = true;
         fd.drawWorld(world);
 		*/
-		
+	
 		for(block in blocks)
 		{
 			block.tick();
+		}
+		
+		if(current_block==null)
+		{
+			while(checkAndClear())
+			{
+			}
 		}
 		
 		if(current_block!=null)
@@ -191,23 +231,95 @@ class Board extends Sprite
 					go=true;
 			}
 
-			if(go)
+			if(go && time_to_next_block<=0.0)
 			{
 
 				if(current_block.y>0.0)
 				{
-					time_to_next_block=1.0;
-					blocks_dropped++;
+					time_to_next_block=0.5;
 				}
 				else
 				{
 					game.gameOver();
+					current_block=null;
 				}
 
-				current_block=null;
+				
 			}
 		
 		}
+		
+	}
+	
+	private function checkAndClear():Bool
+	{
+
+		var boxes:Array<Box>=[];
+		
+		for(block in blocks)
+		{
+								
+			var body=block.body;
+			
+			var a=body.a*2.0/Math.PI;
+			
+			//block.alpha=(Math.abs(a-Math.round(a))<0.1)?1.0:0.5;
+			
+			if(Math.abs(a-Math.round(a))<0.1)
+			{
+				
+				for(s in block.squares)
+				{
+					
+					var y=s.y*body.rsin+body.y;
+					
+					boxes.push(new Box(block,s));
+
+				}
+			}
+			
+		}
+	
+		boxes.sort(Box.compareY);
+	
+		for(i in 8...boxes.length)
+		{
+			if(boxes[i].y-boxes[i-8].y<15)
+			{
+				
+				trace("score: "+(i-8)+"  "+i);
+				
+				for(j in i-8...(i+1))
+				{
+					boxes[j].block.removeSquare(boxes[j].square);
+				}
+				
+				for(j in i-8...(i+1))
+				{
+					
+					if(boxes[j].block.parent!=null)
+					{
+					
+						for(b in boxes[j].block.updateStructure())
+						{
+							addBlock(b);
+						}
+						
+						removeBlock(boxes[j].block);
+					}
+				
+				}
+				
+				lines_cleared++;
+				
+				game.updateScore(lines_cleared);
+				
+				return true;
+				
+			}
+		}
+		
+		return false;
 		
 	}
 	

@@ -1,5 +1,9 @@
 
-Idea and artwork comes from http://xkcd.com/724/
+Idea and artwork (data/background.png) comes from http://xkcd.com/724/
+
+Font used in high scores (data/Humor-Sans.ttf) was made by ch00f and is avaliable at http://xkcdsucks.blogspot.com/2009/03/xkcdsucks-is-proud-to-present-humor.html
+
+Kongregate api wrapper (Kongregate.hx) is based on http://www.cathelius.co.uk/forum_thread%26topic=257
 
 To compile type:
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shx:resources version="10" compress="false" package="resources"
+<shx:resources version="10" compress="true" package="resources"
    xmlns:shx="http://mindless-labs.com/samhaxe"
    xmlns:bin="http://mindless-labs.com/samhaxe/modules/Binary"
    xmlns:img="http://mindless-labs.com/samhaxe/modules/Image"
@@ -12,6 +12,17 @@
    <shx:frame>
 		<img:image class="background" import="data/background.png"/>
 		<img:image class="press_to_play" import="data/press_to_play.png"/>
+		
+		
+		<font:ttf import="data/Humor-Sans.ttf" name="humor_sans">
+         <font:characters>
+            <font:include range="a..z"/>
+            <font:include range="A..Z"/>
+            <font:include range="0..9"/>
+            <font:include characters=" ,.:!?-()"/>
+         </font:characters>
+      </font:ttf>
+      
    </shx:frame>
 
 </shx:resources>

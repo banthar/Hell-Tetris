@@ -8,40 +8,30 @@ class Block extends Shape
 	
 	public var speed:phx.Vector;
 		
-	var color:UInt;
+	public var color:UInt;
 	
-	var squares:Array<phx.Vector>;
+	public var squares:Array<phx.Vector>;
 	
 	public function new(x:Float,y:Float,squares:Array<phx.Vector>,color:UInt)
 	{
 		
 		super();
 		
+		this.color=color;
+		this.squares=squares;
+		
 		speed=new phx.Vector(0.0,0.0);
 		setSpeed(0.0,0.0);
 		
 		body=new phx.Body(x,y);
 
-		var center=new phx.Vector(0.0,0.0);
-
-		for(t in squares)
-		{
-			//center.x+=t.x;
-			//center.y+=t.y;
-		}
-	
-		center.x/=4.0;
-		center.y/=4.0;
-
-
 		for(t in squares)
 		{
 			graphics.beginFill(0x000000);
-			graphics.drawRect((t.x-center.x)*26-13-2,(t.y-center.y)*26-13-2,26+4,26+4);
+			graphics.drawRect(t.x-13-2,t.y-13-2,26+4,26+4);
 			graphics.endFill();
 			
-			body.addShape(phx.Shape.makeBox(26+4,26+4,(t.x-center.x)*26-13-2,(t.y-center.y)*26-13-2,new phx.Material(0.0,1.0,10.0)));
-			
+			body.addShape(phx.Shape.makeBox(26+2,26+2,t.x-13-1,t.y-13-1,new phx.Material(0.0,1.0,10.0)));
 		}
 	
 
@@ -49,11 +39,7 @@ class Block extends Shape
 	
 		for(t in squares)
 		{
-			
-			graphics.drawRect((t.x-center.x)*26-13,(t.y-center.y)*26-13,26,26);
-			
-			body.addShape(phx.Shape.makeBox(26,26,(t.x-center.x)*26-13,(t.y-center.y)*26-13));
-
+			graphics.drawRect(t.x-13,t.y-13,26,26);
 		}
 
 		graphics.endFill();
@@ -86,7 +72,16 @@ class Block extends Shape
 		
 		var type=Std.int((types.length)*Math.random());
 		
-		return new Block(x,y,types[type],colors[type]);
+		//type=1;
+		
+		var squares=[];
+		
+		for(s in types[type])
+		{
+			squares.push(s.mult(26.0));
+		}
+		
+		return new Block(x,y,squares,colors[type]);
 		
 	}
 	
@@ -144,6 +139,64 @@ class Block extends Shape
 			speed.y=(y*2.0+0.5)*s;
 			//body.v.y=speed.y;
 		}
+	}
+	
+	public function updateStructure():Array<Block>
+	{
+		
+		var new_blocks=[];
+		
+		var new_squares=null;
+		
+		squares.push(null);
+		
+		for(s in squares)
+		{
+			
+			if(s==null)
+			{
+				
+				if(new_squares!=null)
+				{
+					var block=new Block(body.x,body.y,new_squares,color);
+					block.body.a=body.a;
+					
+					new_blocks.push(block);
+					
+					new_squares=null;
+				}
+				
+			}
+			else
+			{
+				
+				if(new_squares==null)
+					new_squares=[];
+				
+				new_squares.push(s);
+
+			}
+			
+		}
+		
+		return new_blocks;
+		
+	}
+	
+	public function removeSquare(square:phx.Vector)
+	{
+
+		for(i in 0...squares.length)
+		{
+			if(squares[i] == square)
+			{
+				squares[i]=null;
+				return;
+			}
+		}
+		
+		throw "no such square";
+		
 	}
 	
 }
