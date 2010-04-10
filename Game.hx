@@ -87,6 +87,8 @@ class Game extends Sprite
 		score_label.x=295;
 		score_label.y=245;
 		addChild(score_label);
+	
+		updateScore(0);
 		
 	}
 	
