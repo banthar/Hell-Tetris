@@ -12,19 +12,36 @@ class Block extends Shape
 	
 	public var squares:Array<phx.Vector>;
 	
-	public function new(x:Float,y:Float,squares:Array<phx.Vector>,color:UInt)
+	public function new(x:Float,y:Float,a:Float,squares:Array<phx.Vector>,color:UInt)
 	{
 		
 		super();
 		
+		var center=new phx.Vector(0.0,0.0);
+		
+		for(s in squares)
+		{
+			center=center.plus(s);
+		}
+		
+		center=center.mult(1.0/squares.length);
+		
+		this.squares=[];
+		
+		for(s in squares)
+		{
+			this.squares.push(s.minus(center));
+		}
+		
+		squares=this.squares;
 		this.color=color;
-		this.squares=squares;
 		
 		speed=new phx.Vector(0.0,0.0);
 		setSpeed(0.0,0.0);
 		
-		body=new phx.Body(x,y);
-
+		body=new phx.Body(x+center.x*Math.cos(a)+center.y*Math.sin(a),y+center.x*Math.sin(a)+center.y*Math.cos(a));
+		body.a=a;
+		
 		for(t in squares)
 		{
 			graphics.beginFill(0x000000);
@@ -34,7 +51,6 @@ class Block extends Shape
 			body.addShape(phx.Shape.makeBox(26+2,26+2,t.x-13-1,t.y-13-1,new phx.Material(0.0,1.0,10.0)));
 		}
 	
-
 		graphics.beginFill(color);
 	
 		for(t in squares)
@@ -51,13 +67,13 @@ class Block extends Shape
 	public static function randomBlock(x:Float,y:Float)
 	{
 		var types=[
-				[new phx.Vector(-0.5,-0.5),new phx.Vector(-0.5,0.5),new phx.Vector(0.5,-0.5),new phx.Vector(0.5,0.5)],
-				[new phx.Vector(0.0,-0.5),new phx.Vector(0.0,0.5),new phx.Vector(0.0,-1.5),new phx.Vector(0.0,1.5)],
-				[new phx.Vector(-0.5,-1.0),new phx.Vector(-0.5,0.0),new phx.Vector(-0.5,1.0),new phx.Vector(0.5,1.0)],
-				[new phx.Vector(0.5,-1.0),new phx.Vector(0.5,0.0),new phx.Vector(0.5,1.0),new phx.Vector(-0.5,1.0)],
-				[new phx.Vector(0.5,-1.0),new phx.Vector(0.5,0.0),new phx.Vector(-0.5,0.0),new phx.Vector(-0.5,1.0)],
-				[new phx.Vector(0.5,1.0),new phx.Vector(0.5,0.0),new phx.Vector(-0.5,0.0),new phx.Vector(-0.5,-1.0)],
-				[new phx.Vector(-1.0,0.0),new phx.Vector(0.0,0.0),new phx.Vector(0.0,-1.0),new phx.Vector(0.0,1.0)],
+				[new phx.Vector(0,0),new phx.Vector(1,0),new phx.Vector(0,1),new phx.Vector(1,1)], //square
+				[new phx.Vector(0,0),new phx.Vector(0,1),new phx.Vector(0,2),new phx.Vector(0,3)], // |
+				[new phx.Vector(0,0),new phx.Vector(0,1),new phx.Vector(0,2),new phx.Vector(1,2)], // L
+				[new phx.Vector(1,0),new phx.Vector(1,1),new phx.Vector(1,2),new phx.Vector(0,2)], // _|
+				[new phx.Vector(0,0),new phx.Vector(0,1),new phx.Vector(1,1),new phx.Vector(1,2)], // s
+				[new phx.Vector(1,0),new phx.Vector(1,1),new phx.Vector(0,1),new phx.Vector(0,2)], // z
+				[new phx.Vector(1,0),new phx.Vector(1,1),new phx.Vector(0,1),new phx.Vector(1,2)], // t
 			];
 		
 		var colors=[
@@ -81,7 +97,7 @@ class Block extends Shape
 			squares.push(s.mult(26.0));
 		}
 		
-		return new Block(x,y,squares,colors[type]);
+		return new Block(x,y,0,squares,colors[type]);
 		
 	}
 	
@@ -158,8 +174,7 @@ class Block extends Shape
 				
 				if(new_squares!=null)
 				{
-					var block=new Block(body.x,body.y,new_squares,color);
-					block.body.a=body.a;
+					var block=new Block(body.x,body.y,body.a,new_squares,color);
 					
 					new_blocks.push(block);
 					

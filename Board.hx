@@ -65,8 +65,10 @@ class Board extends Sprite
 			//var y=w/2.0;
 			
 			var t=(x-1.0/c+0.6)/c*2.0-1.0;
-			
-			//t=1.0;
+
+#if DEBUG			
+			t=1.0;
+#end
 			
 			var y=(1.0-Math.sqrt(1-t*t))*w/2.0;
 			
@@ -192,12 +194,12 @@ class Board extends Sprite
 			
 		}
 		
-		/*
+#if DEBUG		
 		graphics.clear();
 		var fd = new phx.FlashDraw(graphics);
         fd.drawCircleRotation = true;
         fd.drawWorld(world);
-		*/
+#end		
 	
 		for(block in blocks)
 		{
